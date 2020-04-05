@@ -1,0 +1,49 @@
+EXAMPLE PSEUDOCODE:
+
+-----------------------------------------------------------------------
+
+~ VARIABLE ASSIGNMENT ~
+
+X,=,3,JUMP
+
+-> Representation in C
+
+x = 3;
+
+-----------------------------------------------------------------------
+
+~ IF STATEMENT ~
+
+IF,3,>,4,ENDCON,X,=,8,JUMP,END
+
+->Representation in C
+
+if (3 > 4) {
+x = 8;
+}
+
+-----------------------------------------------------------------------
+
+~ ITERATIVE LOOP ~
+
+X,=,0,JUMP,FOR,4,X,=,X,+,1,JUMP,END
+
+->Representation in C
+
+x = 0;
+for (int i = 0; i < 4; i++) {
+x = x + 1;
+}
+
+-----------------------------------------------------------------------
+
+~ PRINT ~
+
+X,=,9,PRINT,X,JUMP
+
+->Representation in C
+
+x = 9;
+printf(
+
+
