@@ -83,7 +83,7 @@ def write_jump(op_file):
     op_file.write(";\n")
 
 # Write condition delimiter
-def write_endCondition(op_file):
+def write_end_condition(op_file):
     op_file.write(") { \n")
 
 # Write the syntax of iterative loop - for(i = 0; i<3; i++) { (followed by a newline)
@@ -187,7 +187,7 @@ def write_program(ip_data, op_file):
                     write_endStatement(op_file)
                     i += 1
                 elif ip_data[i].lower() == "endcon":
-                    write_endCondition(op_file)
+                    write_end_condition(op_file)
                     i += 1
                 elif ip_data[i].lower() == "jump":
                     write_jump(op_file)
@@ -197,10 +197,10 @@ def write_program(ip_data, op_file):
                     i += 1
                 elif ip_data[i].lower() == 'x':
                     flag = xVar.getFlag(i)
-                    if flag == 0:
-                        op_file.write('x')
-                    else:
+                    if flag:
                         op_file.write('int x')
+                    else:
+                        op_file.write('x')
                     i += 1
             scan_count += 1
     op_file.write(line3)
@@ -213,9 +213,9 @@ def write_main_program(ip_data, op_file):
     line3 = '#include <util/delay.h> \n'
     headers = line1 + line2 + line3
     op_file.write(headers)
-    functionFlags = write_program(ip_data, op_file)
-    for function in functionFlags:
-        if functionFlags[function] == 1:
+    function_flags = write_program(ip_data, op_file)
+    for function in function_flags:
+        if function_flags[function] == 1:
             if function == "beep":
                 beep_function_definition(op_file)
                 variable_delay_us_definition(op_file)
@@ -227,6 +227,14 @@ def main():
     op_filename = "output.c"
     op_file = open(op_filename, 'w')
     ip_data = read_file(ip_filename)
+
+    # SECTION: run ip_data through an error detection tool
+    # VARIABLE DEFINITION: contains_errors = (error_flag, invalid_element_index)
+    # contains_errors = error_check(ip_data)
+    # if contains_errors[0]:
+    #   print("Logic error - issue first noticed at ip_data index: " + contains_errors[1])
+
     write_main_program(ip_data, op_file)
     op_file.close()
+
 main()

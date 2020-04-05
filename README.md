@@ -1,2 +1,2 @@
-# CVI
-Coding for Visually Impaired Project
+# TaCL
+TaCL project source material
