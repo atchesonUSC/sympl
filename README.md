@@ -1,2 +1,2 @@
-# harvi-tacl
-TaCL project source material
+# CVI
+Coding for Visually Impaired Project
