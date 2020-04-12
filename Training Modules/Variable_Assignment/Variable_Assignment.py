@@ -1,7 +1,6 @@
 import serial
-import BlocksToLogic
-import LogicToProgram
-import CompileUpload
+from code_base import BlocksToLogic, LogicToProgram
+
 
 # TUTORIAL: Variables
 

@@ -1,8 +1,6 @@
 # IMPORTS!
 import serial
-import BlocksToLogic
-import LogicToProgram
-import CompileUpload
+from code_base import BlocksToLogic, CompileUpload, LogicToProgram
 
 
 # Main Program:

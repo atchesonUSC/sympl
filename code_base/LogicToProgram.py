@@ -1,4 +1,4 @@
-from variableClass import Variable
+from code_base.variableClass import Variable
 
 # Function Definitions
 # -----------------------------------------------------------------------------------------------------------------------
@@ -44,35 +44,14 @@ def variable_delay_us_definition(op_file):
     definition = line1 + line2 + line3 + line4 + line5 + line6
     op_file.write(definition)
 
-
-
-
 # Beep | Read the logic file and store the data in a list
 def read_file(ip_filename):
     f = open(ip_filename, "r")
-    line = f.readlines()
-    line_b = line[0].split('\n')
+    line_a = f.readlines()
+    line_b = line_a[0].split('\n')
     line_c = line_b[0]
     ip_data = line_c.split(',')
     return ip_data
-
-# Syntax for print statement
-# def write_print(op_file, ip_data, variables, i):
-#     operators = ['+', '-', '*', '%', '/', '==', '=', '!=', '>', '<']
-#     line1 = "printf(\""
-#     while ip_data[i] != "end":
-#         if ip_data[i] == "alex":
-#             line1 += "Alex "
-#             i += 1 
-#         elif ip_data[i].isdigit():
-#             i = write_digit(op_file, ip_data, i)
-#         elif ip_data[i] in operators:
-#             i = write_operator(op_file, ip_data, i)
-#         elif ip_data[i] == 'x':
-#
-#
-#     line1 += ");\n"
-#     op_file.write(line1)
 
 # End delimiter for functions and loops
 def write_endStatement(op_file):
@@ -127,36 +106,35 @@ def write_operator(op_file, ip_data, i):
     op_file.write(ip_data[i])
     return i + 1
 
-# Write the program inside main
+# Write the program inside main function
 def write_program(ip_data, op_file):
-    functionFlags = {"beep":0} # Intended for functions not a part of the standard i/o library
+    function_flags = {'beep' : 0} # Intended for functions not a part of the standard i/o library
     operators = ['+', '-', '*', '%', '/', '==', '=', '!=', '>', '<']
 
     # setup program variables
     variables = []
-    xVar = Variable(ip_data, 'x') # Create 'x' variable object
-    xVar.setDataTypeFlags()
-    variables.append(xVar)
-
+    for element in ip_data:
+        if element.lower() == 'x' or element.lower() == 'y' or element.lower() == 'z':
+            if element.lower() not in variables:
+                var = Variable(ip_data, element.lower())  # Create 'x' variable object
+                var.setDataTypeFlags()
+                variables.append(var)  # Stores program variables
 
     i = 0
     scan_count = 0
-    line1 = "int main() {\n"
-    line2 = "DDRD |= (1<<4);\n"
-    line3 = "return 0;\n} \n\n"
+    line1 = "int main(int argc, char [] argv) {\n"
+    # line2 = "DDRD |= (1<<4);\n"
+
     while scan_count < 2:   # First iteration: checks for functions, second iteration: interprets and writes program
-        if scan_count  == 0:
-            j = 0
-            while j < len(ip_data):
-                if ip_data[j] == "beep":
+        if scan_count == 0:
+            for element in ip_data:
+                if element == "beep":
                     beep_function_prototype(op_file)
                     variable_delay_us_prototype(op_file)
-                    functionFlags["beep"] = 1
-                j += 1
+                    function_flags["beep"] = 1
             scan_count += 1
-            op_file.write('\n')
             op_file.write(line1)
-            op_file.write(line2)
+            # op_file.write(line2)
         else:
             while i < len(ip_data):
                 if ip_data[i].isdigit():
@@ -195,33 +173,40 @@ def write_program(ip_data, op_file):
                 elif ip_data[i].lower() == "beep":
                     beep_function_call(op_file)
                     i += 1
-                elif ip_data[i].lower() == 'x':
-                    flag = xVar.getFlag(i)
+                elif ip_data[i].lower() == 'x' or ip_data[i].lower() == 'y' or ip_data[i].lower() == 'z':
+                    var = None
+                    for element in variables:
+                        if element.getName() == ip_data[i].lower():
+                            var = element
+                    flag = var.getFlag(i)
                     if flag:
-                        op_file.write('int x')
+                        op_file.write('int ' + var.getName())
                     else:
-                        op_file.write('x')
+                        op_file.write(var.getName())
                     i += 1
             scan_count += 1
-    op_file.write(line3)
-    return functionFlags
+
+    final_line = "return 0;\n} \n\n"
+    op_file.write(final_line)
+    return function_flags
 
 # Write the main body of the program
 def write_main_program(ip_data, op_file):
     line1 = "#include <stdio.h> \n"
-    line2 = '#include <avr/io.h> \n'
-    line3 = '#include <util/delay.h> \n'
-    headers = line1 + line2 + line3
+    # line2 = '#include <avr/io.h> \n'
+    # line3 = '#include <util/delay.h> \n'
+    headers = line1
     op_file.write(headers)
     function_flags = write_program(ip_data, op_file)
     for function in function_flags:
         if function_flags[function] == 1:
-            if function == "beep":
+            if function.lower() == "beep":
                 beep_function_definition(op_file)
                 variable_delay_us_definition(op_file)
 # -----------------------------------------------------------------------------------------------------------------------
 
-# Code for testing funtions:
+# Testing Area: Intended to test the functionality of the above formatting functions
+
 def main():
     ip_filename = "blocklogic.csv"
     op_filename = "output.c"
