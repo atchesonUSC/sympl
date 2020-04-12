@@ -10,27 +10,27 @@ class Variable:
         # elifFlag = False
         # elseFlag = False
         # loopFlag = False
-        globalFlag = False
-        localFlag = False
-        endconFlag = False
-        len_data = len(self.data)
+        global_flag = False
+        local_flag = False
+        endcon_flag = False
+
         i = 0
-        while i < len_data:
+        while i < len(self.data):
             if self.data[i] == self.var:
-                if (endconFlag == False) and (globalFlag == False):
-                    globalXFlag = True
+                if (endcon_flag == False) and (global_flag == False):
+                    global_flag = True
                     self.dataTypeFlags.append(1)
-                elif (endconFlag == True) and (globalFlag == False) and (localFlag == False):
-                    localXFlag = True
+                elif (endcon_flag == True) and (global_flag == False) and (local_flag == False):
+                    local_flag = True
                     self.dataTypeFlags.append(1)
                 else:
                     self.dataTypeFlags.append(0)
             elif self.data[i] == 'end' or self.data[i] == 'elif' or self.data[i] == 'else':
-                endconFlag = False
+                endcon_flag = False
                 self.dataTypeFlags.append(0)
             elif self.data[i] == 'endcon':
-                endconFlag = True
-                localXFlag = False
+                endcon_flag = True
+                local_flag = False
                 self.dataTypeFlags.append(0)
             else:
                 self.dataTypeFlags.append(0)
@@ -38,3 +38,6 @@ class Variable:
 
     def getFlag(self, index):
         return self.dataTypeFlags[index]
+
+    def getName(self):
+        return self.var

@@ -1,1 +1,0 @@
-# added by mansi on pycharm

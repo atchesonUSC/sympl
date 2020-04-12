@@ -1,5 +1,3 @@
-from variableClass import Variable
-
 # no longer make it so that variable values are remembered
 
 # Read the logic file and store the data in a list
