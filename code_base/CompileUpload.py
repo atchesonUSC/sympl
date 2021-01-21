@@ -1,15 +1,19 @@
 import os
 import subprocess
 
+
 def changeDirectory():
     path = '/Users/alexatcheson/Desktop/harvi/block/program'
     os.chdir(path)
 
+
 def make():
     subprocess.call(['make'])
 
+
 def makeFlash():
-    subprocess.call(['make','flash'])
+    subprocess.call(['make', 'flash'])
+
 
 def compileAndUpload():
     changeDirectory()

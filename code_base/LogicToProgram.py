@@ -1,16 +1,16 @@
 from code_base.variableClass import Variable
 
-# Function Definitions
-# -----------------------------------------------------------------------------------------------------------------------
 
 # Beep | Write call to beep function
 def beep_function_call(op_file):
     op_file.write("beep();\n")
 
+
 # Beep | Write beep function prototype
 def beep_function_prototype(op_file):
     prototype = "void beep(); \n"
     op_file.write(prototype)
+
 
 # Beep | Write beep function definition
 def beep_function_definition(op_file): # Correct definition of buzzer function
@@ -28,10 +28,12 @@ def beep_function_definition(op_file): # Correct definition of buzzer function
     definition = line1 + line2 + line3 + line4 + line5 + line6 + line7 + line8 + line9 + line10 + line11
     op_file.write(definition)
 
+
 # Delay | Write variable delay prototype
 def variable_delay_us_prototype(op_file):
-    prototype =  "void variable_delay_us(int delay); \n"
+    prototype = "void variable_delay_us(int delay); \n"
     op_file.write(prototype)
+
 
 # Delay | Write variable delay definition
 def variable_delay_us_definition(op_file):
@@ -44,6 +46,7 @@ def variable_delay_us_definition(op_file):
     definition = line1 + line2 + line3 + line4 + line5 + line6
     op_file.write(definition)
 
+
 # Beep | Read the logic file and store the data in a list
 def read_file(ip_filename):
     f = open(ip_filename, "r")
@@ -53,41 +56,50 @@ def read_file(ip_filename):
     ip_data = line_c.split(',')
     return ip_data
 
+
 # End delimiter for functions and loops
 def write_endStatement(op_file):
     op_file.write("} \n")
+
 
 # Write newline
 def write_jump(op_file):
     op_file.write(";\n")
 
+
 # Write condition delimiter
 def write_end_condition(op_file):
     op_file.write(") { \n")
+
 
 # Write the syntax of iterative loop - for(i = 0; i<3; i++) { (followed by a newline)
 def write_iterative_loop(loop_condition, op_file):
     iterativeLoop = "for(int i = 0; i < " + str(loop_condition) + "; i++) { \n"
     op_file.write(iterativeLoop)
 
+
 # Check which type of loop it is
 def write_loop(loop_condition, op_file):
     write_iterative_loop(loop_condition, op_file)
+
 
 # if(var condition){ do something }
 def write_if(op_file):
     if_statement = "if("
     op_file.write(if_statement)
 
+
 # Write elif statement
 def write_elif(op_file):
     elif_statement = "}\nelif{ \n"
     op_file.write(elif_statement)
 
+
 # Write else statement
 def write_else(op_file):
     else_statement = "}\nelse { \n"
     op_file.write(else_statement)
+
 
 # formats numeric values
 def write_digit(op_file, ip_data, i):
@@ -101,10 +113,12 @@ def write_digit(op_file, ip_data, i):
     i = j
     return i
 
+
 # formats operators
 def write_operator(op_file, ip_data, i):
     op_file.write(ip_data[i])
     return i + 1
+
 
 # Write the program inside main function
 def write_program(ip_data, op_file):
@@ -203,6 +217,7 @@ def write_main_program(ip_data, op_file):
             if function.lower() == "beep":
                 beep_function_definition(op_file)
                 variable_delay_us_definition(op_file)
+
 # -----------------------------------------------------------------------------------------------------------------------
 
 # Testing Area: Intended to test the functionality of the above formatting functions
