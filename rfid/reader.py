@@ -14,13 +14,15 @@ def setup_pins():
     GPIO.setwarnings(False)
 
     # Setup output channel
-    chan_list = [28]
-    GPIO.setup(chan_list, GPIO.OUT, initial=GPIO.HIGH)
+    chan = 29
+    GPIO.setup(chan, GPIO.OUT, initial=GPIO.HIGH)
 
 
-def select_device(chan):
+def select_device(chan, rfid):
     time.sleep(0.1)
-    GPIO.output(chan, GPIO.LOW)
+    GPIO.output(chan, GPIO.LOW))
+    code,text = rfid.read()
+    print('[Data] {}  |  {}'.format(code, text))
     time.sleep(0.1)
     GPIO.output(chan, GPIO.HIGH)
 
@@ -33,9 +35,8 @@ def main():
         arg = input('Read tag? (y/n): ')
         
         if arg == 'y':
-            select_device(28)
-            code, text = rfid.read()
-            print('[Data] {}  |  {}'.format(code, text)
+            select_device(29, rfid)
+            print('[Data] {}  |  {}'.format(code, text))
     finally:
         GPIO.cleanup()
 
