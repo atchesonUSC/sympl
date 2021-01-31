@@ -1,7 +1,16 @@
 import sys
 import time
+import spidev
 import RPi.GPIO as GPIO
 from mfrc522 import SimpleMFRC522
+
+
+#spi = spidev.SpiDev()
+#spi.open(0, 0)
+#spi.no_cs = False
+
+
+chan = 31
 
 
 def setup_pins():
@@ -11,20 +20,25 @@ def setup_pins():
     GPIO.setmode(GPIO.BOARD)
 
     # Disable pin configuration warnings
-    GPIO.setwarnings(False)
+    #GPIO.setwarnings(False)
 
     # Setup output channel
-    chan = 29
     GPIO.setup(chan, GPIO.OUT, initial=GPIO.HIGH)
 
 
-def select_device(chan, rfid):
+def select_device(rfid):
+    # Set the channel LOW
+    GPIO.output(chan, GPIO.LOW)
     time.sleep(0.1)
-    GPIO.output(chan, GPIO.LOW))
+    
+    # Read from the sensor
     code,text = rfid.read()
-    print('[Data] {}  |  {}'.format(code, text))
-    time.sleep(0.1)
+    print(code)
+    print(text)
+    
+    # Set the channel HIGH
     GPIO.output(chan, GPIO.HIGH)
+    time.sleep(0.1)
 
 
 def main():
@@ -32,12 +46,13 @@ def main():
     rfid = SimpleMFRC522()
 
     try:
-        arg = input('Read tag? (y/n): ')
-        
-        if arg == 'y':
-            select_device(29, rfid)
-            print('[Data] {}  |  {}'.format(code, text))
+        print('Reading...')
+        select_device(rfid)
+    except KeyboardInterrupt:
+        print('Interrupted')
+        #spi.close()
     finally:
+    #    spi.close()
         GPIO.cleanup()
 
 
