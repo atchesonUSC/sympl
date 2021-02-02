@@ -1,4 +1,4 @@
-# import spidev
+import os
 import RPi.GPIO as GPIO
 from mfrc522 import SimpleMFRC522
 
@@ -18,7 +18,7 @@ from mfrc522 import SimpleMFRC522
 
 # def select_device(rfid):
 #     # Set the channel LOW
-#     GPIO.output(chan, GPIO.LOW)
+#     GPIO.output(chan, GPIO.LOW
 #     time.sleep(0.1)
 #
 #     # Read from the sensor
@@ -31,13 +31,28 @@ from mfrc522 import SimpleMFRC522
 #     time.sleep(0.1)
 
 
+"""
+Readers
+=======
+* rfid_0 -> GPIO_8 -> device_0
+* rfid_2 -> GPIO_6 -> device_2
+"""
+
+
 def main():
-    rfid = SimpleMFRC522()
+    rfid_0 = SimpleMFRC522()
+    rfid_2 = SimpleMFRC522()
 
     try:
-        print('Reading...')
-        code, text = rfid.read()
-        print('Code: {}\nText: {}'.format(code, text))
+        rfid = int(input('RFID: '))
+        if rfid == 0:
+            code, text = rfid_0.read()
+            print('Code: {}\nText: {}'.format(code, text))
+        elif rfid == 2:
+            code, text = rfid_2.read()
+            print('Code: {}\nText: {}'.format(code, text))
+        else:
+            print('Try again...')
     except KeyboardInterrupt:
         print('Interrupted')
     finally:
