@@ -10,17 +10,17 @@ from SourceLine import SourceLine
 
 
 class Stack:
-    def __init__(self):
+    def __init__(self, stack_type):
         self.data = []
+
+        # types: 'branch', 'loop'
+        self.type = stack_type
 
     def size(self):
         return len(self.data)
 
     def empty(self):
-        if self.size() > 0:
-            return True
-        else:
-            return False
+        return self.size() > 0
 
     def top(self):
         if self.empty():
@@ -35,17 +35,23 @@ class Stack:
         if self.empty():
             return 0
         else:
-            x = self.data[-1]
+            tmp = self.data[-1]
             del self.data[-1]
-            return x
+            return tmp
 
     def clear(self):
-        while self.top() != 'if':
+        if self.type == 'branch':
+            while self.top() != 'if':
+                if not self.empty():
+                    self.pop()
+                else:
+                    raise Exception('[ERROR] Reached end of branch stack')
+            self.pop()
+        else:
             if not self.empty():
                 self.pop()
             else:
-                raise Exception('[ERROR] Reached end of condition stack')
-        self.pop()
+                raise Exception('[ERROR] Reached end of branch stack')
 
 
 class ParseTool:
@@ -64,7 +70,8 @@ class ParseTool:
         self.processed = []
 
         # keep track of conditional branching
-        self.stack = Stack()
+        self.branch_stack = Stack('branch')
+        self.loop_stack = Stack('loop')
 
     def format_assign(self, blocks):
         operators = ['=', '+', '-', '*', '/']
@@ -74,41 +81,47 @@ class ParseTool:
 
         # set left-exp
         srcline.append(blocks[self.i])
+        if len(blocks) >= self.i+1:
+            raise Exception('[ERROR] Too few blocks in assignment')
         srcline.append(blocks[self.i+1])
         self.i += 2
 
         # set prev
-        prev = 'assign'
+        prev = '='
 
         while True:
             if self.i >= len(blocks):
-                raise Exception('[ERROR] Started assignment but no end found')
+                raise Exception('[ERROR] Started assignment but no end block found')
 
             # update curr
             curr = blocks[self.i]
             
-            if (curr.isalpha() or curr.isdigit()) and (prev == 'assign' or prev in operators):
+            if (curr.isalpha() or curr.isdigit()) and (prev == '=' or prev in operators):
                 self.i += 1
                 pass
             elif (curr in operators) and (prev.isdigit() or prev.isalpha()):
                 self.i += 1
                 pass
             elif (curr == 'end') and (prev.isdigit() or prev.isalpha()):
-                if len(blocks) > self.i:
+                if self.i+1 < len(blocks):
                     ondeck = blocks[self.i+1]
                     if ondeck == 'elif' or ondeck == 'else' or ondeck == 'end-conditional-structure' or\
                             ondeck == 'end-loop':
                         self.indents -= 1
                     if ondeck == 'end-conditional-structure' or ondeck == 'end-loop':
                         self.i += 2
+                        if ondeck == 'end-conditional-structure':
+                            self.branch_stack.clear()
+                        else:
+                            self.loop_stack.clear()
                         break
-                    if ondeck == 'end-conditional-structure':
-                        self.stack.clear()
                     else:
                         self.i += 1
                         break
+                else:
+                    raise Exception()
             else:
-                raise Exception('[ERROR] Incorrect block after assign')
+                raise Exception('[ERROR] Incorrect assignment operation format')
 
             # add to source line
             srcline.append(curr)
@@ -125,20 +138,17 @@ class ParseTool:
         comparators = ['<', '>']
 
         # set curr and prev
+        if self.i+1 >= len(blocks):
+            raise Exception('[ERROR] Incomplete branch condition condition')
         prev = blocks[self.i]
-        curr = None
-        if len(blocks) > self.i+1:
-            curr = blocks[self.i+1]
-        else:
-            raise Exception('[ERROR] Incomplete loop condition')
+        curr = blocks[self.i+1]
 
         # push branch onto stack
-        if (prev == 'elif') and (self.stack.empty()):
+        if (prev == 'elif') and (self.branch_stack.empty()):
             raise Exception('[ERROR] Can\'t create \'elif\' branch as first branch in branching sequence')
-        elif (prev == 'elif') and (self.stack.top() == 'else'):
+        elif (prev == 'elif') and (self.branch_stack.top() == 'else'):
             raise Exception('[ERROR] Can\'t create \'elif\' branch as first branch in branching sequence')
-        else:
-            self.stack.push(prev)
+        self.branch_stack.push(prev)
 
         # create source line
         srcline = SourceLine(self.line_num, self.indents, prev)
@@ -147,11 +157,15 @@ class ParseTool:
         comp_flag = False
 
         while True:
+            if self.i >= len(blocks):
+                raise Exception('[ERROR] Incomplete branch condition')
+
             if curr.isdigit() or curr.isalpha():
                 if (prev == 'if') or (prev == 'elif') or (prev in comparators) or (prev in operators):
-                    if self.i+1 < len(blocks)-1:
-                        if blocks[self.i+1] in comparators:
-                            if (prev not in comparators) and (not comp_flag):
+                    if self.i+1 <= len(blocks)-1:
+                        ondeck = blocks[self.i+1]
+                        if ondeck in comparators:
+                            if not comp_flag:
                                 srcline.append(curr)
                                 self.i += 1
 
@@ -160,14 +174,14 @@ class ParseTool:
                                 curr = blocks[self.i]
                             else:
                                 raise Exception('[ERROR] Can\'t use more than one comparator in a condition')
-                        elif blocks[self.i+1] in operators:
+                        elif ondeck in operators:
                             srcline.append(curr)
                             self.i += 1
 
                             # update prev and curr
                             prev = curr
                             curr = blocks[self.i]
-                        elif blocks[self.i+1] == 'end':
+                        elif ondeck == 'end':
                             srcline.append(curr)
                             self.i += 1
                             break
@@ -175,10 +189,13 @@ class ParseTool:
                             raise Exception('[ERROR] Incorrect block after number or variable')
                     else:
                         raise Exception('[ERROR] Missing an \'end-condition\' block')
+                else:
+                    raise Exception('[ERROR] Incorrect branch condition')
             elif curr in operators:
                 if prev.isdigit() or prev.isalpha():
-                    if self.i < len(blocks)-2:
-                        if blocks[self.i+1].isdigit() or blocks[self.i+1].isalpha():
+                    if self.i+1 <= len(blocks)-1:
+                        ondeck = blocks[self.i+1]
+                        if ondeck.isdigit() or ondeck.isalpha():
                             srcline.append(curr)
                             self.i += 1
 
@@ -194,8 +211,9 @@ class ParseTool:
             elif curr in comparators:
                 if not comp_flag:
                     if prev.isdigit() or prev.isalpha():
-                        if self.i < len(blocks)-2:
-                            if blocks[self.i+1].isdigit() or blocks[self.i+1].isalpha():
+                        if self.i+1 <= len(blocks)-1:
+                            ondeck = blocks[self.i+1]
+                            if ondeck.isdigit() or ondeck.isalpha():
                                 srcline.append(curr)
                                 self.i += 1
 
@@ -212,9 +230,12 @@ class ParseTool:
                     else:
                         raise Exception('[ERROR] Incorrect block before comparator')
                 else:
-                    raise Exception('[ERROR] Can\'t ues more than one comparator in a condition')
+                    raise Exception('[ERROR] Can\'t use more than one comparator in a condition')
             else:
                 raise Exception('[ERROR] Incorrect block - not a block used for conditions')
+
+        # append semi-colon
+        srcline.append(':')
 
         # add to processed list
         self.processed.append(srcline)
@@ -225,33 +246,40 @@ class ParseTool:
 
     def format_else(self, blocks):
         # set prev and curr
+        if self.i-1 < 0:
+            raise Exception('[ERROR] An \'if\' or \'elif\' branch should come before an \'else\' branch')
         prev = blocks[self.i-1]
         curr = blocks[self.i]
 
         # push branch onto stack
-        if self.stack.top() == 'if' or self.stack.top() == 'elif':
-            self.stack.push(curr)
+        if self.branch_stack.top() == 'if' or self.branch_stack.top() == 'elif':
+            self.branch_stack.push(curr)
         else:
             raise Exception('[ERROR] An \'if\' or \'elif\' branch should come before an \'else\' branch')
 
         # create source line
         srcline = SourceLine(self.line_num, self.indents, 'else')
 
-        if self.i > 0:
-            if prev == 'end':
-                if len(blocks) > self.i+1:
-                    ondeck = blocks[self.i+1]
-                    if ondeck.isdigit() or ondeck.isalpha() or ondeck == 'end' or ondeck == 'end-conditional-structure':
-                        srcline.append(curr)
-                        self.i += 1
-                    else:
-                        raise Exception('[ERROR] Incorrect block following an \'else\'')
+        if prev == 'end':
+            if len(blocks) > self.i+1:
+                ondeck = blocks[self.i+1]
+                if ondeck.isdigit() or ondeck.isalpha():
+                    srcline.append(curr)
+                    self.i += 1
+                elif ondeck == 'end-conditional-structure':
+                    srcline.append(curr)
+                    self.indents -= 1
+                    self.i += 2
+                    self.branch_stack.clear()
                 else:
-                    raise Exception('[ERROR] \'Else\' branch is incomplete')
+                    raise Exception('[ERROR] Incorrect block following an \'else\'')
             else:
-                raise Exception('[ERROR] Incorrect block before an \'else\' branch')
+                raise Exception('[ERROR] \'Else\' branch is incomplete')
         else:
-            raise Exception('[ERROR] \'else\' is not connected to an \'elif\' or \'if\' branch')
+            raise Exception('[ERROR] Incorrect block before an \'else\' branch')
+
+        # append semi-colon
+        srcline.append(':')
 
         # added to processed list
         self.processed.append(srcline)
@@ -265,28 +293,34 @@ class ParseTool:
         srcline = SourceLine(self.line_num, self.indents, 'loop')
 
         # set up curr and prev
-        prev = blocks[self.i]
-        curr = None
-        if len(blocks) > self.i+1:
-            curr = blocks[self.i+1]
-        else:
+        if len(blocks) <= self.i+1:
             raise Exception('[ERROR] Incomplete loop condition')
+        curr = blocks[self.i+1]
 
         # update position
         self.i += 1
 
         while True:
+            if self.i >= len(blocks):
+                raise Exception('[ERROR] Incomplete loop condition')
+
             if curr.isdigit() or curr.isalpha():
                 if len(blocks) > self.i+1:
                     ondeck = blocks[self.i+1]
                     if ondeck == 'end':
                         srcline.append(curr)
                         self.i += 2
+                        self.loop_stack.push(curr)
                         break
                     else:
                         raise Exception('[ERROR] Incorrect for closing a loop condition')
+                else:
+                    raise Exception('[ERROR] Incomplete loop condition')
             else:
                 raise Exception('[ERROR] Incorrect block following a \'loop\' block')
+
+        # append semi-colon
+        srcline.append(':')
 
         # add to processed list
         self.processed.append(srcline)
@@ -312,7 +346,7 @@ class ParseTool:
 
     def create_tree(self):
         variables = ['a', 'b', 'c', 'x', 'y', 'z']
-        conditionals = ['if', 'elif', 'else']
+        branching = ['if', 'elif', 'else']
         looping = ['loop']
 
         """
@@ -334,7 +368,7 @@ class ParseTool:
                         self.format_assign(proc)
                     else:
                         raise Exception('[ERROR] Incorrect element following Variable')
-                elif curr in conditionals:
+                elif curr in branching:
                     if curr == 'if':
                         self.format_if_elif(proc)
                     elif curr == 'elif':
@@ -347,3 +381,22 @@ class ParseTool:
                     raise Exception('[ERROR] Incorrect beginning to a line of code')
         except Exception as e:
             print(e)
+
+    # returns a list of formatted source lines, which can be written to source file, which can be executed
+    def format_srclines(self):
+        formatted_lines = []
+
+        for line in self.processed:
+            # append tabs
+            tmp = ''
+            tmp += '    ' * line.get_indents()
+
+            # append line elements
+            for elem in line.get_data():
+                tmp += elem + ' '
+
+            # append newline to end
+            tmp += '\n'
+
+            # append line to the formatted_lines
+            formatted_lines.append(tmp)
