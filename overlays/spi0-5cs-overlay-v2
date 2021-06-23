@@ -24,7 +24,7 @@
 
 			cs-gpios = <&gpio 8 1>,
 					   <&gpio 7 1>,
-					   <&gpio 6 1>
+					   <&gpio 6 1>,
 					   <&gpio 27 1>,
 					   <&gpio 26 1>;
 
