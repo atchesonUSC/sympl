@@ -3,8 +3,42 @@
   <component name="ChangeListManager">
     <list default="true" id="9264b2f6-1924-41c9-b72c-8b08d91ff312" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code_base/ParseTool.py" beforeDir="false" afterPath="$PROJECT_DIR$/code_base/ParseTool.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code_base/SourceLine.py" beforeDir="false" afterPath="$PROJECT_DIR$/code_base/SourceLine.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Block_Logic_Pseudocode_Examples.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BoardProgram.ino" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Training Modules/Arithmetic_Practice.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Training Modules/If_Else_Practice.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Training Modules/If_Practice.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Training Modules/Separating_Statements.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Training Modules/Variable_Assignment/Var_Tutorial_Logic.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Training Modules/Variable_Assignment/Variable_Assignment.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code_base/Block.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code_base/BlocksToLogic.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code_base/CheckLogic.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code_base/CompileUpload.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code_base/LogicToProgram.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code_base/Main.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code_base/ParseTool.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code_base/RfidArray.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code_base/SourceLine.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code_base/blocklogic.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code_base/containers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code_base/main_v2.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code_base/output.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code_base/output.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code_base/pin_config.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code_base/playground.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code_base/speaker.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code_base/structs.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code_base/test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code_base/variableClass.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/overlays/spi0-5cs-overlay" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rfid/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rfid/reader.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rfid/writer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpi_setup/harvi_wpa_supplicant.conf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpi_setup/summer_home_2021_wpa_supplicant.conf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpi_setup/template_wpa_supplicant.conf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpi_spi_overlay" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

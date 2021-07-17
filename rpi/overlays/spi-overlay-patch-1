@@ -1,0 +1,238 @@
+/* ===== SPI Overlay Patch ===== */
+
+/* GPIO PINS: 27 26 24 23 22 21 20 19 18 17 16 13 8 7 6 5 */
+
+/dts-v1/;
+/plugin/;
+
+
+/ {
+	compatible = "brcm,bcm2835";
+
+	fragment@0 {
+		target = <&spi0_cs_pins>;
+		frag0: __overlay__ {
+			brcm,pins = <8 7 27 26 24 23 22 21 20 19 18 17 16 13 6 5>;
+		};
+	};
+
+	fragment@1 {
+		target = <&spi0>;
+		frag1: __overlay__ {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			cs-gpios = <&gpio 8 1>,
+					   <&gpio 7 1>,
+					   <&gpio 27 1>,
+					   <&gpio 26 1>,
+					   <&gpio 24 1>,
+					   <&gpio 23 1>, 
+					   <&gpio 22 1>, 
+					   <&gpio 21 1>,
+					   <&gpio 20 1>,
+					   <&gpio 19 1>,
+					   <&gpio 18 1>,
+					   <&gpio 17 1>,
+					   <&gpio 16 1>,
+					   <&gpio 13 1>,
+					   <&gpio 6 1>,
+					   <&gpio 5 1>;
+
+			status = "okay";
+
+			spidev0_0: spidev@0 {
+				compatible = "spidev";
+				reg = <0>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				spi-max-frequency = <125000000>;
+			};
+
+			spidev0_1: spidev@1 {
+				compatible = "spidev";
+				reg = <1>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				spi-max-frequency = <125000000>;
+			};
+
+			spidev0_2: spidev@2 {
+				compatible = "spidev";
+				reg = <2>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				spi-max-frequency = <125000000>;
+			};
+
+			spidev0_3: spidev@3 {
+				compatible = "spidev";
+				reg = <3>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				spi-max-frequency = <125000000>;
+			};
+
+			spidev0_4: spidev@4 {
+				compatible = "spidev";
+				reg = <4>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				spi-max-frequency = <125000000>;
+			};
+
+			spidev0_5: spidev@5 {
+				compatible = "spidev";
+				reg = <5>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				spi-max-frequency = <125000000>;
+			};
+
+			spidev0_6: spidev@6 {
+				compatible = "spidev";
+				reg = <6>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				spi-max-frequency = <125000000>;
+			};
+
+			spidev0_7: spidev@7 {
+				compatible = "spidev";
+				reg = <7>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				spi-max-frequency = <125000000>;
+			};
+
+			spidev0_8: spidev@8 {
+				compatible = "spidev";
+				reg = <8>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				spi-max-frequency = <125000000>;
+			};
+
+			spidev0_9: spidev@9 {
+				compatible = "spidev";
+				reg = <9>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				spi-max-frequency = <125000000>;
+			};
+
+			spidev0_10: spidev@10 {
+				compatible = "spidev";
+				reg = <10>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				spi-max-frequency = <125000000>;
+			};
+
+			spidev0_11: spidev@11 {
+				compatible = "spidev";
+				reg = <11>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				spi-max-frequency = <125000000>;
+			};
+
+			spidev0_12: spidev@12 {
+				compatible = "spidev";
+				reg = <12>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				spi-max-frequency = <125000000>;
+			};
+
+			spidev0_13: spidev@13 {
+				compatible = "spidev";
+				reg = <13>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				spi-max-frequency = <125000000>;
+			};
+
+			spidev0_14: spidev@14 {
+				compatible = "spidev";
+				reg = <14>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				spi-max-frequency = <125000000>;
+			};
+
+			spidev0_15: spidev@15 {
+				compatible = "spidev";
+				reg = <15>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				spi-max-frequency = <125000000>;
+			};
+		};
+	};
+
+	__overrides__ {
+		cs0_pin  = <&frag0>,"brcm,pins:0",
+			   	   <&frag1>,"cs-gpios:4";
+
+		cs1_pin  = <&frag0>,"brcm,pins:4",
+			       <&frag1>,"cs-gpios:16";
+
+		cs2_pin  = <&frag0>,"brcm,pins:8",
+			       <&frag1>,"cs-gpios:28";
+
+		cs3_pin  = <&frag0>,"brcm,pins:12",
+			       <&frag1>,"cs-gpios:40";
+
+		cs4_pin  = <&frag0>,"brcm,pins:16",
+			       <&frag1>,"cs-gpios:52";
+
+		cs5_pin  = <&frag0>,"brcm,pins:20",
+			       <&frag1>,"cs-gpios:64";
+
+		cs6_pin  = <&frag0>,"brcm,pins:24",
+			       <&frag1>,"cs-gpios:76";
+
+		cs7_pin  = <&frag0>,"brcm,pins:28",
+			       <&frag1>,"cs-gpios:88";
+
+		cs8_pin  = <&frag0>,"brcm,pins:32",
+			       <&frag1>,"cs-gpios:100";
+
+		cs9_pin  = <&frag0>,"brcm,pins:36",
+			       <&frag1>,"cs-gpios:112";
+
+		cs10_pin  = <&frag0>,"brcm,pins:40",
+			        <&frag1>,"cs-gpios:124";
+
+		cs11_pin  = <&frag0>,"brcm,pins:44",
+			        <&frag1>,"cs-gpios:136";
+
+		cs12_pin  = <&frag0>,"brcm,pins:48",
+			        <&frag1>,"cs-gpios:148";
+
+		cs13_pin  = <&frag0>,"brcm,pins:52",
+			        <&frag1>,"cs-gpios:160";
+
+		cs14_pin  = <&frag0>,"brcm,pins:56",
+			        <&frag1>,"cs-gpios:172";
+
+		cs15_pin  = <&frag0>,"brcm,pins:60",
+			        <&frag1>,"cs-gpios:184";
+
+		cs2_spidev = <&spidev0_2>, "status";
+		cs3_spidev = <&spidev0_3>, "status";
+		cs4_spidev = <&spidev0_4>, "status";
+		cs5_spidev = <&spidev0_5>, "status";
+		cs6_spidev = <&spidev0_6>, "status";
+		cs7_spidev = <&spidev0_7>, "status";
+		cs8_spidev = <&spidev0_8>, "status";
+		cs9_spidev = <&spidev0_9>, "status";
+		cs10_spidev = <&spidev0_10>, "status";
+		cs11_spidev = <&spidev0_11>, "status";
+		cs12_spidev = <&spidev0_12>, "status";
+		cs13_spidev = <&spidev0_13>, "status";
+		cs14_spidev = <&spidev0_14>, "status";
+		cs15_spidev = <&spidev0_15>, "status";
+ 	};
+};

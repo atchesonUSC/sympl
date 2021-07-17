@@ -344,7 +344,7 @@ class ParseTool:
                 proc.append(num)
         return proc
 
-    def create_tree(self):
+    def parse(self):
         variables = ['a', 'b', 'c', 'x', 'y', 'z']
         branching = ['if', 'elif', 'else']
         looping = ['loop']
