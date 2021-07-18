@@ -1,7 +1,7 @@
 """
 =================================================================================================================
-* [ParseTool.py]: This file houses the Parser class definition, which handles parsing block code into *
-*                     Python source code (uses containers).                                                     *
+* [ParseTool.py]: This file houses the Parser class definition, which handles parsing block code into           *
+*                 Python code, which will get written to the output.py file.                                    *
 =================================================================================================================
 """
 
@@ -13,14 +13,14 @@ class Stack:
     def __init__(self, stack_type):
         self.data = []
 
-        # types: 'branch', 'loop'
+        # stack types: 'branch' (track branch delimiters) or 'loop' (track loop delimiters)
         self.type = stack_type
 
     def size(self):
         return len(self.data)
 
     def empty(self):
-        return self.size() > 0
+        return self.size() == 0
 
     def top(self):
         if self.empty():
@@ -41,17 +41,20 @@ class Stack:
 
     def clear(self):
         if self.type == 'branch':
-            while self.top() != 'if':
-                if not self.empty():
+            if self.empty():
+                raise Exception('[ERROR] Reached end of branch stack')
+            else:
+                while self.top() != 'if' and not self.empty():
+                    self.pop()
+                if self.top() == 'if':
                     self.pop()
                 else:
                     raise Exception('[ERROR] Reached end of branch stack')
-            self.pop()
         else:
-            if not self.empty():
-                self.pop()
+            if self.empty():
+                raise Exception('[ERROR] Reached end of loop stack')
             else:
-                raise Exception('[ERROR] Reached end of branch stack')
+                self.pop()
 
 
 class ParseTool:
@@ -69,7 +72,7 @@ class ParseTool:
         # stores the processed source lines
         self.processed = []
 
-        # keep track of conditional branching
+        # keeps track of conditional branching and loop formatting
         self.branch_stack = Stack('branch')
         self.loop_stack = Stack('loop')
 
@@ -77,13 +80,11 @@ class ParseTool:
         operators = ['=', '+', '-', '*', '/']
 
         # create source line
-        srcline = SourceLine(self.line_num, self.indents, 'assign')
-
-        # set left-exp
-        srcline.append(blocks[self.i])
-        if len(blocks) >= self.i+1:
+        srcline = SourceLine(self.line_num, self.indents)
+        srcline.insert(blocks[self.i])
+        if len(blocks) <= self.i+1:
             raise Exception('[ERROR] Too few blocks in assignment')
-        srcline.append(blocks[self.i+1])
+        srcline.insert(blocks[self.i+1])
         self.i += 2
 
         # set prev
@@ -98,15 +99,16 @@ class ParseTool:
             
             if (curr.isalpha() or curr.isdigit()) and (prev == '=' or prev in operators):
                 self.i += 1
+                srcline.insert(curr)
                 pass
             elif (curr in operators) and (prev.isdigit() or prev.isalpha()):
                 self.i += 1
+                srcline.insert(curr)
                 pass
             elif (curr == 'end') and (prev.isdigit() or prev.isalpha()):
                 if self.i+1 < len(blocks):
                     ondeck = blocks[self.i+1]
-                    if ondeck == 'elif' or ondeck == 'else' or ondeck == 'end-conditional-structure' or\
-                            ondeck == 'end-loop':
+                    if ondeck == 'elif' or ondeck == 'else' or ondeck == 'end-conditional-structure' or ondeck == 'end-loop':
                         self.indents -= 1
                     if ondeck == 'end-conditional-structure' or ondeck == 'end-loop':
                         self.i += 2
@@ -118,13 +120,13 @@ class ParseTool:
                     else:
                         self.i += 1
                         break
+                elif self.i+1 == len(blocks):
+                    self.i += 1
+                    break
                 else:
-                    raise Exception()
+                    raise Exception('[ERROR] Incorrect assignment operation format')
             else:
                 raise Exception('[ERROR] Incorrect assignment operation format')
-
-            # add to source line
-            srcline.append(curr)
 
             # update prev
             prev = curr
@@ -146,12 +148,12 @@ class ParseTool:
         # push branch onto stack
         if (prev == 'elif') and (self.branch_stack.empty()):
             raise Exception('[ERROR] Can\'t create \'elif\' branch as first branch in branching sequence')
-        elif (prev == 'elif') and (self.branch_stack.top() == 'else'):
+        elif (prev == 'elif') and (self.branch_stack.top() == 'else') or self.branch_stack.empty():
             raise Exception('[ERROR] Can\'t create \'elif\' branch as first branch in branching sequence')
         self.branch_stack.push(prev)
 
         # create source line
-        srcline = SourceLine(self.line_num, self.indents, prev)
+        srcline = SourceLine(self.line_num, self.indents)
 
         # tracks if we've already seen a comparator
         comp_flag = False
@@ -166,7 +168,7 @@ class ParseTool:
                         ondeck = blocks[self.i+1]
                         if ondeck in comparators:
                             if not comp_flag:
-                                srcline.append(curr)
+                                srcline.insert(curr)
                                 self.i += 1
 
                                 # update prev and curr
@@ -175,14 +177,14 @@ class ParseTool:
                             else:
                                 raise Exception('[ERROR] Can\'t use more than one comparator in a condition')
                         elif ondeck in operators:
-                            srcline.append(curr)
+                            srcline.insert(curr)
                             self.i += 1
 
                             # update prev and curr
                             prev = curr
                             curr = blocks[self.i]
                         elif ondeck == 'end':
-                            srcline.append(curr)
+                            srcline.insert(curr)
                             self.i += 1
                             break
                         else:
@@ -196,7 +198,7 @@ class ParseTool:
                     if self.i+1 <= len(blocks)-1:
                         ondeck = blocks[self.i+1]
                         if ondeck.isdigit() or ondeck.isalpha():
-                            srcline.append(curr)
+                            srcline.insert(curr)
                             self.i += 1
 
                             # update prev and curr
@@ -214,7 +216,7 @@ class ParseTool:
                         if self.i+1 <= len(blocks)-1:
                             ondeck = blocks[self.i+1]
                             if ondeck.isdigit() or ondeck.isalpha():
-                                srcline.append(curr)
+                                srcline.insert(curr)
                                 self.i += 1
 
                                 # update prev and curr
@@ -235,7 +237,7 @@ class ParseTool:
                 raise Exception('[ERROR] Incorrect block - not a block used for conditions')
 
         # append semi-colon
-        srcline.append(':')
+        srcline.insert(':')
 
         # add to processed list
         self.processed.append(srcline)
@@ -258,16 +260,16 @@ class ParseTool:
             raise Exception('[ERROR] An \'if\' or \'elif\' branch should come before an \'else\' branch')
 
         # create source line
-        srcline = SourceLine(self.line_num, self.indents, 'else')
+        srcline = SourceLine(self.line_num, self.indents)
 
         if prev == 'end':
             if len(blocks) > self.i+1:
                 ondeck = blocks[self.i+1]
                 if ondeck.isdigit() or ondeck.isalpha():
-                    srcline.append(curr)
+                    srcline.insert(curr)
                     self.i += 1
                 elif ondeck == 'end-conditional-structure':
-                    srcline.append(curr)
+                    srcline.insert(curr)
                     self.indents -= 1
                     self.i += 2
                     self.branch_stack.clear()
@@ -279,7 +281,7 @@ class ParseTool:
             raise Exception('[ERROR] Incorrect block before an \'else\' branch')
 
         # append semi-colon
-        srcline.append(':')
+        srcline.insert(':')
 
         # added to processed list
         self.processed.append(srcline)
@@ -290,7 +292,11 @@ class ParseTool:
 
     def format_loop(self, blocks):
         # create source line
-        srcline = SourceLine(self.line_num, self.indents, 'loop')
+        srcline = SourceLine(self.line_num, self.indents)
+        srcline.insert(blocks[self.i])
+
+        # push 'loop' notice onto loop stack
+        self.loop_stack.push(blocks[self.i])
 
         # set up curr and prev
         if len(blocks) <= self.i+1:
@@ -308,9 +314,8 @@ class ParseTool:
                 if len(blocks) > self.i+1:
                     ondeck = blocks[self.i+1]
                     if ondeck == 'end':
-                        srcline.append(curr)
+                        srcline.insert(curr)
                         self.i += 2
-                        self.loop_stack.push(curr)
                         break
                     else:
                         raise Exception('[ERROR] Incorrect for closing a loop condition')
@@ -320,7 +325,7 @@ class ParseTool:
                 raise Exception('[ERROR] Incorrect block following a \'loop\' block')
 
         # append semi-colon
-        srcline.append(':')
+        srcline.insert(':')
 
         # add to processed list
         self.processed.append(srcline)
@@ -339,8 +344,9 @@ class ParseTool:
             else:
                 num = self.block_code[i]
                 i += 1
-                while self.block_code[i].isdigit():
+                while i <= len(self.block_code) and self.block_code[i].isdigit():
                     num += self.block_code[i]
+                    i += 1
                 proc.append(num)
         return proc
 
@@ -363,11 +369,15 @@ class ParseTool:
         try:
             while self.i < len(proc):
                 curr = proc[self.i]
+
                 if curr in variables:
-                    if proc[self.i + 1] == '=':
-                        self.format_assign(proc)
+                    if self.i+1 <= len(proc):
+                        if proc[self.i+1] == '=':
+                            self.format_assign(proc)
+                        else:
+                            raise Exception('[ERROR] Incorrect element following variable')
                     else:
-                        raise Exception('[ERROR] Incorrect element following Variable')
+                        raise Exception('[ERROR] Incomplete assignment operation')
                 elif curr in branching:
                     if curr == 'if':
                         self.format_if_elif(proc)
@@ -382,21 +392,38 @@ class ParseTool:
         except Exception as e:
             print(e)
 
+        '''
+        * [Stage]: Scope check
+        * [Desc]: Scan for correct scoping of variables. Raise exception if incorrect.
+        try:
+            ...
+        except Exception as e:
+            print(e)
+        '''
+
     # returns a list of formatted source lines, which can be written to source file, which can be executed
     def format_srclines(self):
+        variables = ['a', 'b', 'c', 'x', 'y', 'z']
         formatted_lines = []
 
         for line in self.processed:
-            # append tabs
+            # srcline string to be written to output.py file
             tmp = ''
-            tmp += '    ' * line.get_indents()
 
             # append line elements
-            for elem in line.get_data():
-                tmp += elem + ' '
+            tabs = '    ' * line.get_indents()
+            tmp += tabs
 
-            # append newline to end
-            tmp += '\n'
+            i = 0
+            data = line.get_data()
+            if data[i] == 'loop':
+                tmp += 'for i in range(0, ' + data[1] + '):'
+            elif data[i] in variables or data[i] == 'if' or data[i] == 'elif' or data[i] == 'else':
+                while i < len(data):
+                    tmp += data[i] + ' '
+                    i += 1
 
-            # append line to the formatted_lines
+            # append line to formatted_lines
             formatted_lines.append(tmp)
+
+        return formatted_lines

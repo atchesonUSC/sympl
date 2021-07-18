@@ -9,16 +9,15 @@ class Speaker:
     def speak(self, text):
         tts = gTTS(text)
         tts.save('tts.mp3')
-
         os.system(f'start {self.filename}')
 
 
 def main():
     text1 = 'test one'
-    # text2 = 'test two'
+    text2 = 'test two'
 
     filename = 'tts.mp3'
-    tts = gTTS('hello world')
+    tts = gTTS(text1)
     tts.save(filename)
 
     os.system(f'start {filename}')
