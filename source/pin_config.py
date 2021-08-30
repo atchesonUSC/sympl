@@ -22,6 +22,3 @@ R15 = 38
 
 # Button -> Physical pin mapping
 BUTTON = 40
-
-# Speaker -> Physical pin mapping
-SPEAKER = 32

@@ -13,6 +13,6 @@ class RfidArray:
     def read(self):
         block_code = []
         for reader in self.readers:
-            code, block_id = reader.read()
-            block_code.append(block_id)
+            tag_id, code = reader.read()
+            block_code.append(code)
         return block_code

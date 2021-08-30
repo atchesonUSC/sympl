@@ -6,6 +6,7 @@
 """
 
 
+import speaker
 from SourceLine import SourceLine
 
 
@@ -58,12 +59,12 @@ class Stack:
 
 
 class ParseTool:
-    def __init__(self, block_code):
+    def __init__(self):
         # current index in block_code
         self.i = 0
 
-        # block code data
-        self.block_code = block_code
+        # store pre-processed list of block code
+        self.block_code = None
 
         # indentation tracker for source code file
         self.line_num = 0
@@ -76,8 +77,22 @@ class ParseTool:
         self.branch_stack = Stack('branch')
         self.loop_stack = Stack('loop')
 
+        # flag to be raised if execution error encountered while parsing
+        self.error = False
+
+        # speaker tool for creating audio file with error message text
+        self.speaker = speaker.Speaker()
+
+    def found_error(self):
+        return self.error
+
+    def reset_error(self):
+        self.error = False
+
     def format_assign(self, blocks):
+        comparators = ['<', '>', '==']
         operators = ['=', '+', '-', '*', '/']
+        variables = ['a', 'b', 'c', 'x', 'y', 'z']
 
         # create source line
         srcline = SourceLine(self.line_num, self.indents)
@@ -100,11 +115,11 @@ class ParseTool:
             if (curr.isalpha() or curr.isdigit()) and (prev == '=' or prev in operators):
                 self.i += 1
                 srcline.insert(curr)
-                pass
+                # pass
             elif (curr in operators) and (prev.isdigit() or prev.isalpha()):
                 self.i += 1
                 srcline.insert(curr)
-                pass
+                # pass
             elif (curr == 'end') and (prev.isdigit() or prev.isalpha()):
                 if self.i+1 < len(blocks):
                     ondeck = blocks[self.i+1]
@@ -126,7 +141,8 @@ class ParseTool:
                 else:
                     raise Exception('[ERROR] Incorrect assignment operation format')
             else:
-                raise Exception('[ERROR] Incorrect assignment operation format')
+                if not (curr.isdigit() or (curr in variables) or (curr in operators) or (curr in comparators)):
+                    raise Exception('[ERROR] Missing an \'end\' block after an operation')
 
             # update prev
             prev = curr
@@ -136,24 +152,27 @@ class ParseTool:
         self.line_num += 1
 
     def format_if_elif(self, blocks):
-        operators = ['=', '+', '-', '*', '/']
-        comparators = ['<', '>']
+        operators = ['+', '-', '*', '/']
+        comparators = ['<', '>', '==']
+
+        # push branch info onto branch stack
+        curr = blocks[self.i]
+        if (curr == 'elif') and (self.branch_stack.empty()):
+            raise Exception('[ERROR] Can\'t create \'elif\' branch as first branch in branching sequence')
+        elif (curr == 'elif') and (self.branch_stack.top() == 'else'):
+            raise Exception('[ERROR] Can\'t create \'elif\' branch as first branch in branching sequence')
+        self.branch_stack.push(curr)
 
         # set curr and prev
         if self.i+1 >= len(blocks):
-            raise Exception('[ERROR] Incomplete branch condition condition')
-        prev = blocks[self.i]
-        curr = blocks[self.i+1]
-
-        # push branch onto stack
-        if (prev == 'elif') and (self.branch_stack.empty()):
-            raise Exception('[ERROR] Can\'t create \'elif\' branch as first branch in branching sequence')
-        elif (prev == 'elif') and (self.branch_stack.top() == 'else') or self.branch_stack.empty():
-            raise Exception('[ERROR] Can\'t create \'elif\' branch as first branch in branching sequence')
-        self.branch_stack.push(prev)
+            raise Exception('[ERROR] Incomplete branch condition')
+        self.i += 1
+        prev = curr
+        curr = blocks[self.i]
 
         # create source line
         srcline = SourceLine(self.line_num, self.indents)
+        srcline.insert(prev)
 
         # tracks if we've already seen a comparator
         comp_flag = False
@@ -185,7 +204,7 @@ class ParseTool:
                             curr = blocks[self.i]
                         elif ondeck == 'end':
                             srcline.insert(curr)
-                            self.i += 1
+                            self.i += 2
                             break
                         else:
                             raise Exception('[ERROR] Incorrect block after number or variable')
@@ -334,6 +353,27 @@ class ParseTool:
         # update indents
         self.indents += 1
 
+    def format_effect(self, blocks):
+        effects = ['beep']
+        curr = blocks[self.i]
+        srcline = SourceLine(self.line_num, self.indents)
+
+        if self.i+1 >= len(blocks):
+            raise Exception('[ERROR] Missing delimiter after effect block')
+        elif blocks[self.i+1] != 'end':
+            raise Exception('[ERROR] Missing delimiter after effect block')
+
+        if curr == 'beep':
+            srcline.insert(curr)
+
+        # add to processed list
+        self.i += 2
+        self.processed.append(srcline)
+        self.line_num += 1
+
+    def scope_check(self):
+        print('in progess...')
+
     def preprocess(self):
         i = 0
         proc = []
@@ -350,10 +390,13 @@ class ParseTool:
                 proc.append(num)
         return proc
 
-    def parse(self):
+    def parse(self, code):
+        self.block_code = code
+
         variables = ['a', 'b', 'c', 'x', 'y', 'z']
         branching = ['if', 'elif', 'else']
         looping = ['loop']
+        effects = ['beep']
 
         """
         * [Stage]: Pre-processing
@@ -387,10 +430,15 @@ class ParseTool:
                         self.format_else(proc)
                 elif curr in looping:
                     self.format_loop(proc)
+                elif curr in effects:
+                    self.format_effect(proc)
                 else:
+                    print(self.block_code[self.i])
                     raise Exception('[ERROR] Incorrect beginning to a line of code')
-        except Exception as e:
-            print(e)
+        except Exception as msg:
+            print(msg)
+            self.error = True
+            self.speaker.speak(msg)
 
         '''
         * [Stage]: Scope check
@@ -422,6 +470,8 @@ class ParseTool:
                 while i < len(data):
                     tmp += data[i] + ' '
                     i += 1
+            elif data[i] == 'beep':
+                tmp += 'audio.speak(txt)'
 
             # append line to formatted_lines
             formatted_lines.append(tmp)

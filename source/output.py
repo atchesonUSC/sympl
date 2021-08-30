@@ -1,2 +1,7 @@
-for i in range(0, 5):
-    x = 4 
+import speaker
+
+# audio and text
+txt = 'beep'
+audio = speaker.Speaker()
+
+audio.speak(txt)

@@ -17,10 +17,10 @@ class Variable:
         i = 0
         while i < len(self.data):
             if self.data[i] == self.var:
-                if (endcon_flag == False) and (global_flag == False):
+                if (endcon_flag is False) and (global_flag is False):
                     global_flag = True
                     self.dataTypeFlags.append(1)
-                elif (endcon_flag == True) and (global_flag == False) and (local_flag == False):
+                elif (endcon_flag is True) and (global_flag is False) and (local_flag is False):
                     local_flag = True
                     self.dataTypeFlags.append(1)
                 else:

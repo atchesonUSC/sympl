@@ -2,12 +2,24 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9264b2f6-1924-41c9-b72c-8b08d91ff312" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/source/output.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/Block.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/BlocksToLogic.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/CheckLogic.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/CompileUpload.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/LogicToProgram.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/Main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/source/ParseTool.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/ParseTool.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/source/SourceLine.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/SourceLine.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/source/main_v2.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/main_v2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/RfidArray.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/RfidArray.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/blocklogic.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/containers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/main_v2.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/output.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/output.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/pin_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/pin_config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/playground.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/source/speaker.py" beforeDir="false" afterPath="$PROJECT_DIR$/source/speaker.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/structs.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/variableClass.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,7 +105,28 @@
       <recent name="$PROJECT_DIR$/code_base" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.main_v2 (1)">
+  <component name="RunManager" selected="Python.main">
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="harvi-tacl" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/source" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/source/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="main_v2 (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="harvi-tacl" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -157,27 +190,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="playground" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="harvi-tacl" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/code_base" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/code_base/playground.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="speaker" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="harvi-tacl" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -201,11 +213,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.main" />
         <item itemvalue="Python.main_v2 (1)" />
         <item itemvalue="Python.speaker" />
         <item itemvalue="Python.output" />
         <item itemvalue="Python.main_v2" />
-        <item itemvalue="Python.playground" />
       </list>
     </recent_temporary>
   </component>

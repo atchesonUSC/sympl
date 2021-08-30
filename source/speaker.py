@@ -1,14 +1,14 @@
-from gtts import gTTS
 import os
+from gtts import gTTS
 
 
 class Speaker:
     def __init__(self):
-        self.filename = '~/tts.mp3'
+        self.filename = '~/output.mp3'
 
     def speak(self, text):
         tts = gTTS(text)
-        tts.save('tts.mp3')
+        tts.save(self.filename)
         os.system(f'start {self.filename}')
 
 

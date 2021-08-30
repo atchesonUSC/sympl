@@ -1,109 +1,120 @@
-# IMPORTS!
-import serial
-from code_base import BlocksToLogic, CompileUpload, LogicToProgram
+import os
+import pin_config
+# import RPi.GPIO as GPIO
+from ParseTool import ParseTool
+# from RfidArray import RfidArray
 
+"""
+========================================================================================================
+* [main_v2.py.py]: Executes main function for reading each block space, and then converting that block *
+*            information into executable code (can choose C or Python formatting of resulting program) *
+========================================================================================================
+"""
 
-# Main Program:
-#-----------------------------------------------------------------------------------------------------------------------
-def main():
-    mappingGuideFile = "BlockMapping.csv"    # Stores block mapping information
-    blocks = 16  # Number of board block spaces
-    samplesPerBlock = 20    # Number of sample measurements per block space
-    vin = 5     # Voltage supplied by Arduino Mega
-    boardResistance = 68000   # reference resistor size in board
-    serialPort = "/dev/cu.usbmodem14101" # Port for board micro-controller input
-    baudRate = 9600
-    ser = serial.Serial(serialPort, baudRate)     # Creates a Serial Object - Basically a bridge between program and serial port
-    blockData = {"block0":[],      # Stores sample data for each block
-                 "block1":[],
-                 "block2":[],
-                 "block3":[],
-                 "block4":[],
-                 "block5":[],
-                 "block6":[],
-                 "block7":[],
-                 "block8":[],
-                 "block9":[],
-                 "block10":[],
-                 "block11":[],
-                 "block12":[],
-                 "block13":[],
-                 "block14":[],
-                 "block15":[]}
-    blockMedianList = []    # stores median value of data set for each block space
-    blockPseudoCode = []    # stores logic to be written to .csv file
-    blockMappingRange = {}   # stores block mapping ranges for pseudo-code
+print('===============================================')
+print('* HaRVI Lab Software - Tangible Coding Language')
+print('* Developer: Alex Atcheson')
+print('* Email: saatcheson@gmail.com')
+print('===============================================\n')
 
-    while 1:    # main program loop
+"""
+==================================================================
+* [SECTION] Select option for parsing to C or Python source code *
+==================================================================
+# Specify source file language...
+src_code_format = input('[STATUS] Source options: Python (\'p\'), C (\'c\'): ')
+while src_code_format.lower() != 'p' and src_code_format.lower() != 'c':
+    src_code_format = input('[STATUS] Source options: Python (\'p\'), C (\'c\'): ')
+"""
 
-        while BlocksToLogic.getData(ser) != 3000: # Waits until the start flag is raised
-            pass
-        outerCounter = 0  # Controls number of sets of data are collected (e.g. data for each block = 1 set of data)
-        while outerCounter < samplesPerBlock:
-            iteration = 0
-            data = BlocksToLogic.getData(ser)
-            while data != 2000: # Waits until start flag for block sequence has been received
-                data = BlocksToLogic.getData(ser)
-            while 1:    # collects single set of block sequence data
-                if iteration == blocks:
-                    break
-                else:
-                    BlocksToLogic.readSerialAddToDataset(ser, blocks, iteration, blockData)
-                    iteration += 1
-            outerCounter +=1
+"""
+===================================================================
+* [SECTION] Create output file for storing executable source code *
+===================================================================
+"""
 
-        # Upload mapping data from .csv file and get resistor error range
-        BlocksToLogic.sortData(blockData, samplesPerBlock)  # Sort block analog data
-        BlocksToLogic.findMedian(blockData, samplesPerBlock, blockMedianList) # Find median value from each set of block data
+# Open output.py file for writing translated Python code
+output_file = 'output.py'
+ofile = open(output_file, 'w')
 
-        # Conduct error inspection for block placement
-        placementError = BlocksToLogic.spacingError(blockMedianList, blocks)
+"""
+==========================================
+* [SECTION] Configure input/ output pins *
+==========================================
+# Configure RPi.GPIO mode...
+GPIO.setmode(GPIO.BOARD)
 
-        if placementError == 1:
-            BlocksToLogic.clearBlockData(blockData)
-            blockMedianList = []
-            print("Uh-oh! It appears there's an error in your code!")
-        elif placementError == -1:
-            BlocksToLogic.clearBlockData(blockData)
-            blockMedianList = []
-            print("Please make sure blocks are connected to the board!")
-        else:
-            BlocksToLogic.calculateBlockResistance(blockMedianList, vin, boardResistance, blocks)  # Convert analog value to resistance (Ohms)
-            BlocksToLogic.resistorError(mappingGuideFile, blockMappingRange, boardResistance)
+# Configure external device pins...
+GPIO.setup(pin_config.SPEAKER, GPIO.OUT)
+GPIO.setup(pin_config.BUTTON, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+"""
 
-            # Check each block in blockMedianList and find the range that it belongs to in the blockMapping dictionary
-            for block in blockMedianList:
-                # print(block)
-                for blockType in blockMappingRange:
-                    if (block >= blockMappingRange[blockType][0]) and (block <= blockMappingRange[blockType][1]): # checks upper and lower bound of error range
-                        blockPseudoCode.append(blockType)
-                    # if blockMappingRange[blockType][0] > 0:
-                    #     print(blockMappingRange[blockType][0])
-                    #     print(blockMappingRange[blockType][1])
+"""
+==============================================================
+* [SECTION] Read block program from tactile programming tool *
+==============================================================
+"""
+# Array of RFID readers
+'''
+num_readers = 24
+rfid_readers = RfidArray(num_readers)
+'''
 
-            # Write blockPseudoCode to .csv file
-            BlocksToLogic.writeLogicFile(blockPseudoCode)
+parser = ParseTool()
 
-            # Read .csv of pseudo-code and write .c file
-            ip_filename = "blocklogic.csv"
-            op_filename = "output.c"    # name of created .c file that gets uploaded to external micro-controller
-            op_file = open(op_filename,'w')
-            ip_data = LogicToProgram.read_file(ip_filename)
+count = 0
+while count == 0:
+    count += 1
 
-            # Conduct error inspection for logic
-            # ** Code here **
+    """
+    # Wait for Start Button to be pressed...
+    while GPIO.input(pin_config.BUTTON) == GPIO.HIGH:
+        pass
 
-            # Creates .c file representation of block data
-            LogicToProgram.write_main_program(ip_data, op_file)
-            op_file.close()
+    # Read block code...
+    block_code = rfid_readers.read()
+    """
 
-            # Clear block data
-            BlocksToLogic.clearBlockData(blockData)
-            blockMedianList = []
-            blockMappingRange = {}
-            blockPseudoCode = []
+    block_code1 = ['x', '=', '3', 'end', 'if', 'x', '>', '5', 'end', 'x', '=', 'x', '+', '9', 'end', 'end-conditional']
+    block_code2 = ['x', '=', '3', 'end']
+    block_code3 = ['loop', '5', 'end', 'x', '=', '4', 'end', 'y', '=', '9', 'end', 'end-loop']
+    block_code4 = ['x', '=', '7', 'if', 'x', '<', '3', 'end', 'x', '=', '5', 'end', 'elif', 'x', '<', '1', 'end', 'x', '=', '3', 'end', 'end-conditional-structure']
+    block_code5 = ['beep', 'end']
+    test = block_code5
 
-            # Upload program to Arduino chip
-            CompileUpload.compileAndUpload()
-# -----------------------------------------------------------------------------------------------------------------------
-main()
+    """
+    ==============================
+    * [SECTION] Parse block code *
+    ==============================
+    """
+    # Parse block code to source code
+    parser.parse(test)
+
+    # check if any parser errors encountered
+    if parser.found_error():
+        parser.reset_error()
+    else:
+        src_lines_processed = parser.format_srclines()
+
+        """
+        =======================================================
+        * [SECTION] Write formatted source code lines to file *
+        =======================================================
+        """
+        ofile.write('import speaker\n\n')
+        ofile.write('# audio and text\n')
+        ofile.write('txt = \'beep\'\n')
+        ofile.write('audio = speaker.Speaker()\n\n')
+
+        for src_line in src_lines_processed:
+            ofile.write(src_line + '\n')
+        print('[STATUS] Success! Output file written')
+
+        """
+        =================================
+        * [SECTION] Execute output file *
+        =================================
+        interpreter = 'python3'
+        output_file_path = '~/sympl/source/output.py'
+        os.system(interpreter + ' ' + output_file_path)
+        """
